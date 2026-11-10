@@ -1496,5 +1496,24 @@ status.textContent='전체 초기화가 완료되었어요. 처음 화면으로 
 window.location.reload();
 }catch(e){status.textContent='초기화를 완료하지 못했어요. 브라우저의 저장 공간 접근을 확인한 뒤 다시 시도해 주세요.';box.hidden=true;open.hidden=false;open.focus();}
 });
-})();</script></body>
+})();</script><style>
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.numpad button{height:54px;border-radius:16px;background:#fff;border:2px solid #e3dccf;box-shadow:0 3px 0 #e3dccf;font:900 26px var(--num);color:#273a2c;transition:transform .08s,box-shadow .08s}
+.numpad button:active{transform:translateY(2px);box-shadow:0 1px 0 #e3dccf}
+.numpad [data-np="del"]{font-size:22px;color:#7d8794}
+.numpad [data-np="ok"]{font:19px var(--display);color:#fff;background:#E0703A;border-color:#E0703A;box-shadow:0 3px 0 #b8532a}
+#adventure .numpad [data-np="ok"]{background:var(--a-accent,#2f7a55);border-color:var(--a-accent,#2f7a55);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+form:has(button:disabled)+.numpad,form:has(input:disabled)+.numpad{opacity:.4;pointer-events:none}
+@media (orientation: landscape) and (min-width:760px){.numpad button{height:46px}}
+form:has(+.numpad)>button{display:none!important}
+</style>
+<script>(()=>{
+const KEYS=['1','2','3','4','5','6','7','8','9','del','0','ok'];
+function add(form){const nx=form.nextElementSibling;if(nx&&nx.classList.contains('numpad'))return;const inp=form.querySelector('input');if(!inp)return;inp.setAttribute('inputmode','none');const pad=document.createElement('div');pad.className='numpad';pad.setAttribute('role','group');pad.setAttribute('aria-label','숫자 입력판');pad.innerHTML=KEYS.map(k=>'<button type="button" data-np="'+k+'" aria-label="'+(k==='del'?'지우기':k==='ok'?'확인':k)+'">'+(k==='del'?'⌫':k==='ok'?'확인':k)+'</button>').join('');form.after(pad);}
+function scan(){['kitchen','adventure'].forEach(id=>{const r=document.getElementById(id);if(r&&!r.hidden)r.querySelectorAll('#k-form,#a-form').forEach(add);});}
+document.addEventListener('click',e=>{const b=e.target.closest('.numpad button');if(!b)return;const form=b.parentElement.previousElementSibling;if(!form||form.tagName!=='FORM')return;const inp=form.querySelector('input');if(!inp||inp.disabled)return;const k=b.dataset.np;if(k==='del')inp.value=inp.value.slice(0,-1);else if(k==='ok'){if(inp.value)form.requestSubmit();return;}else if(inp.value.length<2)inp.value=(inp.value==='0'?'':inp.value)+k;inp.dispatchEvent(new Event('input',{bubbles:true}));});
+const mo=new MutationObserver(scan);
+['kitchen','adventure'].forEach(id=>{const r=document.getElementById(id);if(r)mo.observe(r,{childList:true,subtree:true});});
+})();</script>
+</body>
 </html>
